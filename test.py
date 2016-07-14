@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 import urllib.request
 import urllib.error
 import http.client
-import main
+import pokemongo
 
 # Pokemon Go in Canada Test Suite
 # --------------------------------
@@ -19,44 +19,62 @@ import main
 class TestingPokemonGoMethods(unittest.TestCase):
 
     def test_pokemonHTMLParser(self):
-        parser = main.PokemonHTMLParser()
+        parser = pokemongo.PokemonHTMLParser()
         myBytes = "<html><meta content=\"Pokémon GO on the App Store\"></meta></html>".encode("utf-8")
         parser.feed(myBytes.decode(sys.stdout.encoding))
         self.assertEqual(parser.didFindGo(), True)
 
     def test_pokemonHTMLParser_pokemonGoFind(self):
-        parser = main.PokemonHTMLParser()
+        parser = pokemongo.PokemonHTMLParser()
         myBytes = "<html><meta content=\"fgfdsdfgsdfgdfsgdfPokémon GOsdfgdsfgfdgdfsgdfg\"></meta></html>".encode("utf-8")
         parser.feed(myBytes.decode(sys.stdout.encoding))
         self.assertEqual(parser.didFindGo(), True)
 
     def test_pokemonHTMLParser_noContent(self):
-        parser = main.PokemonHTMLParser()
+        parser = pokemongo.PokemonHTMLParser()
         myBytes = "<html></html>".encode("utf-8")
         parser.feed(myBytes.decode(sys.stdout.encoding))
         self.assertEqual(parser.didFindGo(), False)
 
     def test_pokemonHTMLParser_noPokemonGo(self):
-        parser = main.PokemonHTMLParser()
+        parser = pokemongo.PokemonHTMLParser()
         parser.feed("<html><meta content=\"Digimon NO\"></meta></html>")
         self.assertEqual(parser.didFindGo(), False)
+
+    def test_robotsHTMLParser(self):
+        parser = pokemongo.RobotsHTMLParser()
+        myBytes = "<HTML><HEAD><meta name=\"robots\" content=\"noindex,nofollow\"></HEAD></HTML>".encode("utf-8")
+        parser.feed(myBytes.decode(sys.stdout.encoding))
+        self.assertEqual(parser.didFindGo(), False)
+
+    def test_robotsHTMLParser_noRobots(self):
+        parser = pokemongo.RobotsHTMLParser()
+        myBytes = "<HTML><HEAD><meta name=\"somethingelse\" content=\"noindex,nofollow\"></HEAD></HTML>".encode("utf-8")
+        parser.feed(myBytes.decode(sys.stdout.encoding))
+        self.assertEqual(parser.didFindGo(), True)
+
+    def test_robotsHTMLParser_noName(self):
+        parser = pokemongo.RobotsHTMLParser()
+        myBytes = "<HTML><HEAD><meta content=\"noindex,nofollow\"></HEAD></HTML>".encode("utf-8")
+        parser.feed(myBytes.decode(sys.stdout.encoding))
+        self.assertEqual(parser.didFindGo(), True)
 
     @patch("urllib.request.urlopen")
     def test_checkForPokemonGo(self, urlopen_mock):
         urlopen_mock.return_value = Mock(spec=http.client.HTTPResponse)
         urlopen_mock.return_value.read.return_value = "<html><meta content=\"Pokémon GO on the App Store\"></meta></html>".encode("utf-8")
-        self.assertEqual(main.checkForPokemonGo("us"), True) # those bastards!
+        self.assertEqual(pokemongo.checkForPokemonGo("us"), True) # those bastards!
 
     @patch("urllib.request.urlopen")
     def test_checkForPokemonGoErrorHandling(self, urlopen_mock):
         urlopen_mock.side_effect = urllib.error.URLError("Error retrieving webpage")
-        with self.assertRaises(main.PokemonGoError):
-            main.checkForPokemonGo("us")
+        with self.assertRaises(pokemongo.PokemonGoError):
+            pokemongo.checkForPokemonGo("us")
 
-    @patch("main.checkForPokemonGo")
+    @patch("pokemongo.checkForPokemonGo")
     def test_PokemonGoCanadaCall(self, checkForPokemonGo_mock):
-        main.isPokemonGoInCanada()
-        main.checkForPokemonGo.assert_called_once_with("ca")
+        pokemongo.isPokemonGoInCanada()
+        pokemongo.checkForPokemonGo.assert_called_once_with("ca")
 
 if __name__ == "__main__":
     unittest.main()
