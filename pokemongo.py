@@ -118,6 +118,6 @@ def isPokemonGoInCanada():
         if (checkForPokemonGo("ca")):
             print("Pokemon Go is now in Canada!")
         else:
-            print("Pokemon Go is not in Canada yet")
+            print("Pokemon Go is not in Canada yet.")
     except PokemonGoError as e:
         print(e)
