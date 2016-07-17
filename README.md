@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/Coteh/PokemonGoInCanada.svg?branch=master)](https://travis-ci.org/Coteh/PokemonGoInCanada)
 
+**It's been a wild ride! Pokemon Go is now officially released in Canada! Thanks for tuning in to this project!**
+
 Out of my frustration over Pokemon Go not released in Canada yet, I whipped up this small terminal app in Python 3 that will tell you if it's out in Canada yet or not.
 
 There are currently two methods that can be used to determine availability.
